@@ -1,0 +1,46 @@
+
+
+{{ block title }}La ronda {{ player.round_number}} ha terminado {{ endblock }}
+{{ block content }}
+
+
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <body class="w3-container">
+    <div class="w3-panel w3-pale-red w3-round-large w3-border">
+      <h3>En esta ronda has perdido un total de <em>{{ my_lost_points }}</em> puntos</h3>
+      <p>
+          <br>
+          <em>{{ my_disconnects }}</em> usuarios se han desconectado de ti, resultando en una pérdida de
+          <em>{{ my_disconnects_deductions }}</em> puntos.
+          <br>
+          <br>
+          Has enviado <em>{{ my_requests }}</em> solicitudes de conexión con un costo total de
+          <em>{{ my_requests_deductions }}</em> puntos.
+      </p>
+    </div>
+    </body>
+
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <body class="w3-container">
+    <div class="w3-panel w3-pale-green w3-round-large w3-border">
+      <h3>En esta ronda has acumulado un total de <em>{{ total_points }}</em> puntos</h3>
+      <p>
+          <br>
+          Al finalizar la ronda, has acumulado un total de <em>{{ my_connections }}</em> conexiones,
+          lo que ha resultado en una ganancia de <em>{{ my_connection_points }}</em> puntos.
+          <br>
+          <br>
+          Has ganado <em>{{ my_bonus_points }}</em> puntos extra.
+          <br>
+          <br>
+          En esta ronda has ganado {{ my_earn_points }} puntos.
+      </p>
+    </div>
+    </body>
+
+    {{ next_button }}
+
+{{ endblock }}
+
+
+

@@ -1,0 +1,56 @@
+{{ block content }}
+<div class="card bg-light m-1">
+
+    <div class="card-body">
+
+        <h3>
+            Práctica pregunta por puntos extra
+        </h3>
+
+        <p>
+            <br>
+                A intervalos aleatorios, tendrás que completar un ejercicio de atención, en el cual debes evaluar con
+                precisión si tu opinión es minoritaria o mayoritaria con respecto a tus conexiones. Si respondes correctamente,
+                recibirás un bono de <b>100 puntos</b>.
+            </br>
+
+            <br>
+                La pregunta por puntos extra consisten en estimar correctamente la opinión que comparte la mayoría de
+                tus conexiones en la ronda en cuestión. Si tomamos como ejemplo la imagen a continuación, la mayoría de tus
+                conexiones han preferido no compartir su opinión (2 de 4 conexiones). Mientras que tan solo 1 de 4 conexiones
+                está de acuerdo contigo y, por lo tanto, de acuerdo con la afirmación. Finalmente, 1 de 4 conexiones está
+                en desacuerdo contigo y por lo tanto, en desacuerdo con la afirmación.
+
+            </br>
+
+            <div class="card-body">
+                <img src="{{ static panel }}"
+                width="800px"
+                 />
+            </div>
+
+            <br>
+                La pregunta por puntos extra pide que evalúes <b>en la última ronda, ¿qué opinión crees que comparte la
+                mayoría de tus conexiones?</b>. Siendo las opciones:
+                <ol>
+                  <li>La mayoría está de acuerdo</li>
+                  <li>La mayoría está de en desacuerdo</li>
+                  <li>La mayoría prefiere no compartir opinión</li>
+                  <li>No hay mayoría</li>
+                </ol>
+            </br>
+
+            <br>
+                En nuestro ejemplo, la respuesta correcta es: <b>La mayoría prefiere no compartir opinión</b>. Para continuar,
+                marca la respuesta correcta y pincha en "Next".
+            </br>
+
+            {{ formfield player.majorityGUESS }}
+
+            {{ next_button }}
+
+        </p>
+    </div>
+</div>
+
+{{ endblock }}

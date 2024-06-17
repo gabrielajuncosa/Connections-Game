@@ -1,0 +1,15 @@
+{{ block title }} Ingresa tu clave nuevamente {{ endblock }}
+{{ block content }}
+
+    La contraseña que has ingresado no coincide con nuestro registro. Por favor, ingresa la contraseña nuevamente. Sin ella, no
+    podrás continuar con el experimento.
+    <br>
+    <br>
+    <b>IMPORTANTE!</b> Debes ingresar la <b><i>contraseña</i> que hemos enviado a tu correo</b> junto con el enlace de
+    ingreso.
+    <br>
+    <br>
+    {{ formfield player.paypal }}
+
+    {{ next_button }}
+{{ endblock }}

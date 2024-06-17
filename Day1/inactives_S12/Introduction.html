@@ -1,0 +1,10 @@
+{{ block title }} <!--Consent -->{{ endblock }}
+{{ block content }}
+    {{ include C.CONSENTS_TEMPLATE }}
+    <br>
+    <b>IMPORTANTE!</b> Debes ingresar la <b><i>contraseña</i> que hemos enviado a tu correo</b> junto con el enlace de
+    ingreso.
+    {{ formfield player.paypal }}
+
+    {{ next_button }}
+{{ endblock }}

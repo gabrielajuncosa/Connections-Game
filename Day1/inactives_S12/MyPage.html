@@ -1,0 +1,613 @@
+{{ block title }}
+{{ player.participant.nickname }}
+{{ endblock }}
+{{ block content }}
+
+<head>
+  <meta http-equiv="refresh" content="400">
+</head>
+
+<div class="flex_outer_container">
+	<div class="flex_left">
+		<div class="cell_content">
+			<div id="target_yourself" class="flex_follow">
+				<!--div class="flex_yourself_item"></div-->
+			</div>
+		</div>
+	</div>
+	<div class="flex_center">
+		<div class="cell_content">
+			<div id="target_feed" class="flex_feed">
+				<!--div class="flex_feed_item"></div-->
+			</div>
+		</div>
+	</div>
+	<div class="flex_right">
+		<div class="cell_content">
+			<div id="target_follow" class="flex_follow">
+				<!--div class="flex_follow_item"></div-->
+			</div>
+		</div>
+	</div>
+</div>
+
+{{ if player.active == 0 }}
+	<div class="inactive_box">
+		<h1 class="inactive_text">Lo sentimos, no puede continuar con el estudio.</h1>
+	</div>
+{{ endif }}
+
+
+{{ endblock }}
+
+{{ block scripts }}
+	<script>
+		// Fix Python to Javascript boolean compatibility
+		var True = true;
+		var False = false;
+		// Load dictionaries from server
+		var nicknames_raw = {{ nicknames }};
+		var nicknames_ordered = Array( Object.keys( nicknames_raw ).length )
+		var actives = {{ actives }};
+		
+		// Fill nicknames_ordered
+		for (var [key, nickname] of Object.entries( nicknames_raw )) {
+			nicknames_ordered[ nickname.position -1 ] = {'nickname': nickname.nickname, 'id': key};
+		}
+		
+		var target_yourself = document.getElementById('target_yourself');
+		var target_feed = document.getElementById('target_feed');
+		var target_follow = document.getElementById('target_follow');
+		
+		var current_data = {};
+		var expanded = {};
+		
+		function html_id(id) {
+			if(id) {
+				return(id.replace(" ", "_"));
+			} else {
+				return("UNKNOWN");
+			}
+		}
+		
+		function toggle_connect(btn) {
+			{{ if player.active == 1 }}
+				liveSend({'type': 'toggle_connect', 'id_in_group': parseInt(btn.value)});
+			{{ endif }}
+		};
+
+		function toggle_undo(btn) {
+			{{ if player.active == 1 }}
+				liveSend({'type': 'toggle_undo', 'id_in_group': parseInt(btn.value)});
+			{{ endif }}
+		};
+
+		function toggle_accept(btn) {
+			{{ if player.active == 1 }}
+				liveSend({'type': 'toggle_accept', 'id_in_group': parseInt(btn.value)});
+			{{ endif }}
+		};
+
+		function toggle_reject(btn) {
+			{{ if player.active == 1 }}
+				liveSend({'type': 'toggle_reject', 'id_in_group': parseInt(btn.value)});
+			{{ endif }}
+		};
+
+		function toggle_disconnect(btn) {
+			{{ if player.active == 1 }}
+				liveSend({'type': 'toggle_disconnect', 'id_in_group': parseInt(btn.value)});
+			{{ endif }}
+		};
+		
+		function show_less(id) {
+			expanded[id] = 0;
+			nickname = html_id(nicknames_raw[id].nickname);
+			$( ".expanded." + nickname ).hide();
+			$( ".contracted." + nickname ).show();
+		}
+		
+		function show_more(id) {
+			expanded[id] = 1;
+			nickname = html_id(nicknames_raw[id].nickname);
+			$( ".expanded." + nickname ).show();
+			$( ".contracted." + nickname ).hide();
+		}
+	
+		function liveRecv(data) {
+			console.log(data);
+			
+			// Check if full load
+			if ('full_load' in data) {
+				current_data = data;
+			} else {
+				// Check connections
+				if ('connections' in data) {
+					current_data.connections = data.connections;
+				}
+				// Check followers
+				if ('followers' in data) {
+					current_data.followers = data.followers;
+				}
+				
+				// Check i_dont_follow
+				if ('i_dont_follow' in data) {
+					current_data.i_dont_follow = data.i_dont_follow;
+				}
+				
+				// Check i_follow
+				if ('i_follow' in data) {
+					current_data.i_follow = data.i_follow;
+				}
+			}
+			
+			// Clean what we are going to replace
+			target_yourself.innerHTML = '';
+			target_feed.innerHTML = '';
+			target_follow.innerHTML = '';
+			
+			for( var x = 0; x < nicknames_ordered.length; x++ ) {
+				id = nicknames_ordered[x].id;
+				nickname = nicknames_ordered[x].nickname;
+				msg = get_msg_by_nickname(nickname, current_data.messages);
+				// Connected
+				if( current_data.connections.includes(parseInt(id)) ){
+					// Yourself
+					if( "{{ player.participant.nickname }}" == nickname ) {
+						process_yourself(id, nickname, msg);
+					} else {
+						process_messages(id, nickname, msg);
+					}
+				}
+				// Follower
+				if( current_data.followers.includes(parseInt(id)) ){
+					process_followers(id, nickname);
+				}
+				// I do not follow
+				if( current_data.i_dont_follow.includes(parseInt(id)) ){
+					process_i_dont_follow(id, nickname);
+				}
+				// I follow
+				if( current_data.i_follow.includes(parseInt(id)) ){
+					process_i_follow(id, nickname);
+				}
+			}
+		}
+		
+		function get_msg_by_nickname(nickname, messages) {
+			var output = [];
+			for (var [key, msg_list] of Object.entries(messages)) {
+				for (var msg of msg_list) {
+					if(msg.nickname == nickname) {
+						output.push(msg);
+					}
+				}
+			}
+			return output;
+		}
+		
+		function process_yourself(id, nickname, msg) {
+			// Empty html
+			var html_to_insert = "";
+			// Ignore empty messages
+			if(msg.length > 0){
+				// Update expanded
+				if( id in expanded == false ) {
+					expanded[id] = 0;
+				}
+				// Build expanded box
+				// Build html wrapper
+				if( expanded[id] == 0 ){
+					html_to_insert += '<div class="expanded ' + html_id(nickname) + ' flex_yourself_item color013" style="display: none;">';
+				} else {
+					html_to_insert += '<div class="expanded ' + html_id(nickname) + ' flex_yourself_item color013">';
+				}
+				html_to_insert += '<div class="item_header">Hola ' +  nickname + '<br>HISTORIAL DE OPINIONES</div>';
+				html_to_insert += '<hr>';
+				// Iterate all rounds
+				for ( object of msg.reverse() ) {
+					// Extract round data
+					round = object.round;
+					text = object.text;
+					text_color = object.color;
+					statement = object.statement;
+					// Build html boxes
+					html_to_insert += '<p title="' + statement + '" class="' + text_color + ' statement"><u>RONDA ' + round + '</u>: ' + text + '</p>';
+				}
+				// Add show less button
+				if( msg.length > 2 ) {
+					html_to_insert += '<button class="color022" type="button" value="' + id + '" onclick="show_less(' + id + ')">Mostrar menos</button>';
+				}
+				// Finish html wrapper
+				html_to_insert += '</div>';
+				
+				// Build contracted box
+				// Build html wrapper
+				if( expanded[id] == 1 ){
+					html_to_insert += '<div class="contracted ' + html_id(nickname) + ' flex_yourself_item color013" style="display: none;">';
+				} else {
+					html_to_insert += '<div class="contracted ' + html_id(nickname) + ' flex_yourself_item color013">';
+				}
+				html_to_insert += '<div class="item_header">Hola ' +  nickname + '<br>HISTORIAL DE OPINIONES</div>';
+				html_to_insert += '<hr>';
+				// Rows to show
+				row1 = "";
+				row2 = "";
+				// Iterate all rounds
+				for ( object of msg.reverse() ) {
+					// Extract round data
+					round = object.round;
+					text = object.text;
+					text_color = object.color;
+					statement = object.statement;
+					// Build html boxes
+					row1 = row2;
+					row2 = '<p title="' + statement + '" class="' + text_color + ' statement"><u>RONDA ' + round + '</u>: ' + text + '</p>';
+				}
+				// Insert rows
+				html_to_insert += row2;
+				html_to_insert += row1;
+				// Add show more button
+				if( msg.length > 2 ) {
+					html_to_insert += '<button class="color015" type="button" value="' + id + '" onclick="show_more(' + id + ')">Mostrar más</button>';
+				}
+				// Finish html wrapper
+				html_to_insert += '</div>';
+			}
+			// Deploy html
+			target_yourself.insertAdjacentHTML('beforeend', html_to_insert);
+		}
+		
+		function process_messages(id, nickname, msg) {
+			// Empty html
+			var html_to_insert = "";
+			// Ignore empty messages
+			if(msg.length > 0){
+				// Update expanded
+				if( id in expanded == false ) {
+					expanded[id] = 0;
+				}
+				// Build expanded box
+				// Build html wrapper
+				if( expanded[id] == 0 ){
+					html_to_insert += '<div class="expanded ' + html_id(nickname) + ' flex_feed_item color014" style="display: none;">';
+				} else {
+					html_to_insert += '<div class="expanded ' + html_id(nickname) + ' flex_feed_item color014">';
+				}
+				html_to_insert += '<div class="item_header">';
+				html_to_insert += '<div class="left_header">' +  nickname + '</div>';
+				if (actives[id]['active']) {
+					html_to_insert += '<div class="button_header right_header"><button class="color016" type="button" value="' + id + '" onclick="toggle_disconnect(this)">DESCONECTARME</button></div>';
+				} else {
+					html_to_insert += '<div class="button_header right_header inactive_button">INACTIVO</div>';
+				}
+				html_to_insert += '</div><hr>';
+				// Iterate all rounds
+				for ( object of msg.reverse() ) {
+					// Extract round data
+					round = object.round;
+					text = object.text;
+					text_color = object.color;
+					statement = object.statement;
+					// Build html boxes
+					html_to_insert += '<p title="' + statement + '" class="' + text_color + ' statement"><u>RONDA ' + round + '</u>: ' + text + '</p>';
+				}
+				// Add show less button
+				if( msg.length > 2 ) {
+					html_to_insert += '<button class="color022" type="button" value="' + id + '" onclick="show_less(' + id + ')">Mostrar menos</button>';
+				}
+				// Finish html wrapper
+				html_to_insert += '</div>';
+				
+				// Build contracted box
+				// Build html wrapper
+				if( expanded[id] == 1 ){
+					html_to_insert += '<div class="contracted ' + html_id(nickname) + ' flex_feed_item color014" style="display: none;">';
+				} else {
+					html_to_insert += '<div class="contracted ' + html_id(nickname) + ' flex_feed_item color014">';
+				}
+				html_to_insert += '<div class="item_header">';
+				html_to_insert += '<div class="left_header">' +  nickname + '</div>';
+				if (actives[id]['active']) {
+					html_to_insert += '<div class="button_header right_header"><button class="color016" type="button" value="' + id + '" onclick="toggle_disconnect(this)">DESCONECTARME</button></div>';
+				} else {
+					html_to_insert += '<div class="button_header right_header inactive_button">INACTIVO</div>';
+				}
+				html_to_insert += '</div><hr>';
+				// Rows to show
+				row1 = "";
+				row2 = "";
+				// Iterate all rounds
+				for ( object of msg.reverse() ) {
+					// Extract round data
+					round = object.round;
+					text = object.text;
+					text_color = object.color;
+					statement = object.statement;
+					// Build html boxes
+					row1 = row2;
+					row2 = '<p title="' + statement + '" class="' + text_color + ' statement"><u>RONDA ' + round + '</u>: ' + text + '</p>';
+				}
+				// Insert rows
+				html_to_insert += row2;
+				html_to_insert += row1;
+				// Add show more button
+				if( msg.length > 2 ) {
+					html_to_insert += '<button class="color015" type="button" value="' + id + '" onclick="show_more(' + id + ')">Mostrar más</button>';
+				}
+				// Finish html wrapper
+				html_to_insert += '</div>';
+			}
+			// Deploy html
+			target_feed.insertAdjacentHTML('beforeend', html_to_insert);
+		}
+		
+		function process_followers(id, nickname){
+			// Empty html
+			var html_to_insert = "";
+			// Build html box
+			html_to_insert += '<div class="' + html_id(nickname) + ' flex_follow_item color021 border001">';
+			html_to_insert += '<div class="item_header">';
+			html_to_insert += '<div class="left_header">' +  nickname + '</div>';
+			html_to_insert += '<div class="right_header">';
+			if (actives[id]['active']) {
+				html_to_insert += '<button class="color017" type="button" value="' + id + '" onclick="toggle_accept(this)">ACEPTAR</button>';
+				html_to_insert += '<button class="color018" type="button" value="' + id + '" onclick="toggle_reject(this)">RECHAZAR</button>';
+			} else {
+				html_to_insert += '<div class="inactive_button">INACTIVO</div>';
+			}
+			html_to_insert += '</div></div></div>';
+			// Deploy html
+			target_follow.insertAdjacentHTML('beforeend', html_to_insert);
+		}
+		
+		function process_i_dont_follow(id, nickname){
+			// Empty html
+			var html_to_insert = "";
+			// Build html box
+			html_to_insert += '<div class="' + html_id(nickname) + ' flex_follow_item color019 border002">';
+			html_to_insert += '<div class="item_header">';
+			html_to_insert += '<div class="left_header">' +  nickname + '</div>';
+			if (actives[id]['active']) {
+				html_to_insert += '<div class="right_header"><button class="color016" type="button" value="' + id + '" onclick="toggle_connect(this)">CONECTARME</button></div>';
+			} else {
+				html_to_insert += '<div class="right_header inactive_button">INACTIVO</div>';
+			}
+			html_to_insert += '</div></div>';
+			// Deploy html
+			target_follow.insertAdjacentHTML('beforeend', html_to_insert);
+		}
+		
+		function process_i_follow(id, nickname){
+			// Empty html
+			var html_to_insert = "";
+			// Build html box
+			html_to_insert += '<div class="' + html_id(nickname) + ' flex_follow_item color020 border003">';
+			html_to_insert += '<div class="item_header">';
+			html_to_insert += '<div class="left_header">' +  nickname + '</div>';
+			if (actives[id]['active']) {
+				html_to_insert += '<div class="right_header"><button class="color016" type="button" value="' + id + '" onclick="toggle_undo(this)">DESHACER<br>SOLICITUD</button></div>';
+			} else {
+				html_to_insert += '<div class="right_header inactive_button">INACTIVO</div>';
+			}
+			html_to_insert += '</div></div>';
+			// Deploy html
+			target_follow.insertAdjacentHTML('beforeend', html_to_insert);
+		}
+
+		document.addEventListener("DOMContentLoaded", function (event) {
+			liveSend({'type': 'load'});
+		});
+		
+		$('body').on('mouseenter', '.statement', function() {
+			$( this ).css('font-weight', 'bold');
+		});
+		$('body').on('mouseleave', '.statement', function() {
+			$( this ).css('font-weight', 'normal');
+		});
+	</script>
+{{ endblock }}
+
+{{ block styles }}
+	<style>
+        .otree-body {
+            max-width: 95%;
+			font-size: 1vw;
+        }
+		.otree-title {
+			display: none;
+		}
+	</style>
+	<style>
+		.flex_outer_container {
+			display: flex;
+			flex-direction: column;
+			height: 85vh;
+			flex-wrap: wrap;
+			align-items: stretch;
+			align-content: stretch;
+		}
+		.flex_left {
+			width: 20%;
+			height: 100%;
+			padding: 1%;
+			overflow-x: hidden;
+			overflow-y: auto;
+			margin: 0 1px 0 0;
+			border: 2px solid #9d9d9d;
+		}
+		.flex_center {
+			width: 60%;
+			height: 100%;
+			padding: 1%;
+			overflow-x: auto;
+			overflow-y: auto;
+			margin: 0 1px 0 1px;
+			border: 2px solid #9d9d9d;
+		}
+		.flex_right {
+			width: 20%;
+			height: 100%;
+			padding: 1%;
+			overflow-x: hidden;
+			overflow-y: auto;
+			margin: 0 0 0 1px;
+			border: 2px solid #9d9d9d;
+		}
+		.flex_feed {
+			display: flex;
+			flex-direction: column;
+			height: 72vh;
+			flex-wrap: wrap;
+			align-items: stretch;
+			align-content: stretch;
+		}
+		.flex_yourself_item {
+			border: 5px solid #ffffff;
+			padding: 10px;
+			border-radius: 50px;
+		}
+		.flex_feed_item {
+			width: 40%;
+			border: 5px solid #ffffff;
+			padding: 10px;
+			border-radius: 50px;
+		}
+		.flex_follow_item {
+			//border: 5px solid #ffffff;
+			padding: 10px;
+			border-radius: 50px;
+			margin: 5px 0;
+		}
+		.item_header {
+			text-align: center;
+			width: 100%;
+			font-weight: bold;
+		}
+		.left_header {
+			width: 50%;
+			display: inline-block;
+			vertical-align: middle;
+		}
+		.right_header {
+			width: 50%;
+			display: inline-block;
+			vertical-align: middle;
+		}
+		button {
+			border-radius: 25px;
+			border: 0px;
+			margin: 5px auto;
+			width: 7vw;
+			height: 2vw;
+			display: block;
+			font-size: 0.7vw;
+			font-weight: bold;
+			line-height : 0.8vw;
+		}
+		p {
+			cursor: pointer;
+			margin: 0 0 2px 0;
+		}
+		.color001 {
+			color: {{ color001 }};
+		}
+		.color002 {
+			color: {{ color002 }};
+		}
+		.color003 {
+			color: {{ color003 }};
+		}
+		.color004 {
+			color: {{ color004 }};
+		}
+		.color005 {
+			color: {{ color005 }};
+		}
+		.color006 {
+			color: {{ color006 }};
+		}
+		.color007 {
+			color: {{ color007 }};
+		}
+		.color008 {
+			color: {{ color008 }};
+		}
+		.color009 {
+			color: {{ color009 }};
+		}
+		.color010 {
+			color: {{ color010 }};
+		}
+		.color011 {
+			color: {{ color011 }};
+		}
+		.color012 {
+			color: {{ color012 }};
+		}
+		.color013 {
+			background-color: {{ color013 }};
+		}
+		.color014 {
+			background-color: {{ color014 }};
+		}
+		.color015 {
+			background-color: {{ color015 }};
+		}
+		.color016 {
+			background-color: {{ color016 }};
+		}
+		.color017 {
+			background-color: {{ color017 }};
+		}
+		.color018 {
+			background-color: {{ color018 }};
+		}
+		.color019 {
+			background-color: {{ color019 }};
+		}
+		.color020 {
+			background-color: {{ color020 }};
+		}
+		.color021 {
+			background-color: {{ color021 }};
+		}
+		.color022 {
+			background-color: #2277cc;
+		}
+		.border001 {
+			border: 2px solid #005599;
+		}
+		.border002 {
+			border: 2px solid #88ff33;
+		}
+		.border003 {
+			border: 2px solid #446600;
+		}
+	</style>
+	<style>
+		.inactive_box {
+			height: 100%;
+			width: 100%;
+			background-color: #d3d3d3;
+			opacity: 70%;
+			position: fixed;
+			left: 0;
+			top: 0;
+		}
+		.inactive_text {
+			color: #cc0000;
+			opacity: 100%;
+			font-weight: bold;
+			text-align: center;
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+		}
+		.inactive_button {
+			color: #cc0000;
+			font-weight: bold;
+		}
+	</style>
+{{ endblock }}

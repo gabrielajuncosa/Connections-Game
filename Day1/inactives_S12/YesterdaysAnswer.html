@@ -1,0 +1,61 @@
+{{ block title }}¿Cambiarías tu respuesta?{{ endblock }}
+
+{{ block content }}
+<head>
+<style>
+.button {
+    background-color: #3182bd;
+    border: none;
+    color: white;
+    padding: 10px 24px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 18px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 12px;
+}
+
+.button2 {
+  background-color: white;
+  color: black;
+  border: 2px solid #008CBA;
+}
+
+.button2:hover {
+  background-color: #008CBA;
+  color: white;
+}
+
+</style>
+</head>
+
+
+
+<div class="card bg-light m-3">
+
+    <div class="card-body">
+
+        <h4>
+            {{ my_label }}
+        </h4>
+
+    </div>
+</div>
+
+<p>
+        <h5>
+            Ayer, tu reacción a la declaración anterior fue: "{{ yesterday }}"
+        </h5>
+
+
+</p>
+
+<div>
+    <h4> {{ form.changeAnswer.label  }}</h4>
+    <button class="button button2" name="changeAnswer" value="True">Sí</button>
+    <button class="button button2" name="changeAnswer" value="False">No</button>
+</div>
+
+{{ endblock }}
