@@ -1,0 +1,52 @@
+{{ block title }} ¡Gracias por rellenar el cuestionario!{{ endblock }}
+{{ block content }}
+
+ <p>
+    <br>
+        ¡Has completado la primera fase de EXP12-Zafiro exitosamente!
+    </br>
+
+    <br>
+        El pago por completar esta primera parte será de 2€; sin embargo, recuerda que para recibir el pago
+        debes completar las dos partes hasta el final.
+    </br>
+
+    <br>
+        La segunda sesión tendrá lugar la semana que viene, <b>lunes 20 de noviembre del 2023, hora por definir</b> y
+        tomará entre 1 hora y 75 minutos. La sesión tendrán lugar entre las 9:30 y 14:15, el horario específico se
+        determinará a partir de la disponibilidad de todos los participantes.
+    </br>
+
+    <br>
+        Indica tu disponibilidad marcando <b>TODOS</b> los horarios en los que están disponible. Si no puedes participar
+        el lunes 20 de noviembre, por favor, marca la última opción. Podrás participar en una de las múltiples sesiones
+        que se llevarán a cabo entre el miércoles 22 de noviembre 2023 y el miércoles 29 de noviembre 2023.
+
+    </br>
+
+    <br>
+        Si tienes algún problema con el experimento, ponte en contacto con (<a href="mailto:ibsen.gisc@gmail.com">equipo IBSEN</a> ó
+        <a href="mailto:juncosa_maria@phd.ceu.edu">Gabriela Juncosa</a>).
+    </br>
+
+     <br>
+       ¡Gracias por tu colaboración!
+    </br>
+</p>
+
+<br>
+<p>
+<b>HORARIOS DISPONIBLES: LUNES, 20 DE NOVIEMBRE</b>
+<br>
+{{ for field in C.SCHEDULE_MONDAY }}
+<label>
+    <input type="checkbox" name="{{ field.name }}" value="1">
+    {{ field.label }}
+</label><br>
+{{ endfor }}
+</p>
+
+<p>
+{{ next_button }}
+</p>
+{{ endblock }}

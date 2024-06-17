@@ -1,0 +1,35 @@
+{{ block title }}{{ endblock }}
+{{ block content }}
+
+<div class="card bg-light m-0">
+    <h2 class="card-header">{{ my_label }}</h2>
+
+    <div class="card-body">
+
+        {{ formfield player.agree }}
+
+    </div>
+</div>
+
+<div class="card bg-light m-1">
+    <div class="card-body">
+        {{ formfield player.attitudeCertainty }}
+    </div>
+</div>
+
+<div class="card bg-light m-1">
+    <div class="card-body">
+        {{ formfield player.issueImportance }}
+    </div>
+</div>
+
+<div class="card bg-light m-1">
+    <div class="card-body">
+        {{ formfield player.minorityClimate }}
+    </div>
+</div>
+
+
+    {{ next_button }}
+
+{{ endblock }}

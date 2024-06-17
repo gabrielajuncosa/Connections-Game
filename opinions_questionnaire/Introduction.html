@@ -1,0 +1,8 @@
+{{ block title }} <!--Consent -->{{ endblock }}
+{{ block content }}
+    {{ include C.CONSENTS_TEMPLATE }}
+
+    {{ formfield player.paypal }}
+
+    {{ next_button }}
+{{ endblock }}

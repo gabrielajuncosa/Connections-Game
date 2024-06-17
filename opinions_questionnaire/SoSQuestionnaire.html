@@ -1,0 +1,72 @@
+{{ block title }}{{ endblock }}
+{{ block content }}
+
+<div class="card bg-light m-1">
+    <h5 class="card-header">Lee las siguientes afirmaciones y piensa si te representan o no,
+        o si concuerdan con tus creencias. Si te identificas fuertemente con la afirmación, selecciona <i><b>Muy de acuerdo</b></i>.
+        Si no te identificas en absoluto con alguna de ellas, elige <i><b>Muy en desacuerdo</b></i>.</h5>
+
+    <div class="card-body">
+        {{ form.worryIsolation.label  }}<br>
+        {{ form.worryIsolation }}&nbsp;
+        <br>
+        {{ form.notWorryAvoidance.label  }}<br>
+        {{ form.notWorryAvoidance }}
+        <br><br>
+        {{ form.riskAvoidance.label  }}<br>
+        {{ form.riskAvoidance }}
+        <br><br>
+        {{ form.intelligentsArgue.label  }}<br>
+        {{ form.intelligentsArgue }}
+        <br><br>
+        {{ form.enjoysArguments.label  }}<br>
+        {{ form.enjoysArguments }}
+        <br><br>
+        {{ form.avoidsArguments.label  }}<br>
+        {{ form.avoidsArguments }}
+        <br><br>
+
+        {{ form.strongOpinions1.label  }}<br>
+        {{ form.strongOpinions1 }}
+        <br><br>
+        {{ form.formsOpinions.label  }}<br>
+        {{ form.formsOpinions }}
+        <br><br>
+        {{ form.strongOpinions2.label  }}<br>
+        {{ form.strongOpinions2 }}
+        <br><br>
+        {{ form.notNeutral.label  }}<br>
+        {{ form.notNeutral }}
+        <br><br>
+        {{ form.opinionsAverage.label  }}<br>
+        {{ form.opinionsAverage }}
+        <br><br>
+        {{ form.strongOpinions3.label  }}<br>
+        {{ form.strongOpinions3 }}
+        <br><br>
+        {{ form.interestPolitics.label  }}<br>
+        {{ form.interestPolitics }}
+
+    </div>
+</div>
+
+<div class="card bg-light m-1">
+    <div class="card-body">
+        {{ form.hypothetical.label  }}<br><br>
+        {{ form.hypothetical }}
+    </div>
+</div>
+
+<div class="card bg-light m-1">
+    <div class="card-body">
+        {{ form.socialMedia.label  }}<br><br>
+        {{ form.socialMedia }}
+    </div>
+</div>
+
+
+
+
+    {{ next_button }}
+
+{{ endblock }}
